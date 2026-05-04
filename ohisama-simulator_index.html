@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>おひさまエコキュート 交換シミュレーション｜まちの電気屋さん</title>
+<meta name="description" content="ご家庭の状況を入力するだけで、深夜電力エコキュートとおひさまエコキュートの年間電気代を比較。卒FIT後の最適な給湯選びを30秒でシミュレーションできます。">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Kaisei+Decol:wght@500;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --cream:#fffaf0;
+    --cream-deep:#fff3d6;
+    --sky:#a8dcf0;
+    --sky-deep:#5cb8d9;
+    --sky-soft:#e3f4fb;
+    --sun:#ffb547;
+    --sun-deep:#ff8b3d;
+    --sun-glow:#ffe082;
+    --grass:#7cc472;
+    --grass-deep:#4ea845;
+    --night:#3d5a80;
+    --night-deep:#293b5a;
+    --ink:#3a3022;
+    --ink-soft:#7a6d56;
+    --line-green:#06c755;
+    --line-green-deep:#04953f;
+    --warn:#e07a1f;
+    --info:#5cb8d9;
+    --shadow-soft:0 8px 22px -12px rgba(80,60,30,.2);
+    --shadow:0 18px 40px -20px rgba(80,60,30,.3);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Zen Maru Gothic', system-ui, sans-serif;
+    color:var(--ink);
+    background:var(--cream);
+    line-height:1.7;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.kaisei{font-family:'Kaisei Decol', serif;letter-spacing:.01em}
+  button{font-family:inherit;cursor:pointer}
+  input,select{font-family:inherit;color:var(--ink)}
+
+  /* === Header === */
+  header{
+    padding:1rem 5vw;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(255,250,240,.95);
+    backdrop-filter:saturate(140%) blur(6px);
+    position:sticky;
+    top:0;
+    z-index:50;
+    border-bottom:1px solid rgba(122,109,86,.15);
+  }
+  .logo{display:flex;align-items:center;gap:.7rem;font-weight:700;font-size:.9rem}
+  .logo-mark{
+    width:42px;height:42px;border-radius:50%;
+    background:linear-gradient(135deg, var(--sun-glow) 0%, var(--sun) 50%, var(--sun-deep) 100%);
+    display:grid;place-items:center;
+    font-family:'Kaisei Decol',serif;
+    font-weight:700;
+    color:#fff;
+    font-size:.7rem;
+    line-height:1;
+    text-align:center;
+    box-shadow:0 0 0 3px var(--cream),0 0 0 4px var(--sun-deep);
+    flex-shrink:0;
+  }
+  .logo-mark span{display:block}
+  .logo small{display:block;font-size:.62rem;color:var(--ink-soft);font-weight:500;letter-spacing:.06em}
+  .header-cta{
+    display:none;
+    background:var(--line-green);
+    color:#fff;
+    padding:.55rem 1.1rem;
+    border-radius:999px;
+    font-size:.82rem;
+    font-weight:700;
+    text-decoration:none;
+    box-shadow:var(--shadow-soft);
+  }
+  @media(min-width:720px){.header-cta{display:inline-flex;gap:.4rem;align-items:center}}
+
+  /* === Hero === */
+  .hero{
+    position:relative;
+    padding:2.5rem 5vw 2rem;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, var(--sky-soft) 0%, transparent 70%),
+      linear-gradient(180deg, #fff8e8 0%, var(--cream) 60%);
+    text-align:center;
+  }
+  .hero-sun{
+    position:absolute;
+    top:-30px;right:-50px;
+    width:180px;height:180px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, var(--sun-glow), var(--sun) 55%, var(--sun-deep));
+    box-shadow:0 0 60px 15px rgba(255,181,71,.35);
+    animation:sunPulse 6s ease-in-out infinite;
+    z-index:0;
+  }
+  @keyframes sunPulse{
+    0%,100%{transform:scale(1);opacity:.95}
+    50%{transform:scale(1.05);opacity:1}
+  }
+  .hero-inner{position:relative;z-index:1;max-width:780px;margin:0 auto}
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    font-size:.78rem;
+    font-weight:700;
+    color:var(--sun-deep);
+    background:#fff;
+    border:2px solid var(--sun);
+    padding:.4rem 1.1rem;
+    border-radius:999px;
+    margin-bottom:1rem;
+    box-shadow:0 4px 0 var(--sun);
+  }
+  .eyebrow::before{content:"🔢"}
+
+  .hero h1{
+    font-size:clamp(1.5rem, 4.5vw, 2.4rem);
+    font-weight:700;
+    line-height:1.5;
+    margin-bottom:1rem;
+  }
+  .hero h1 .marker{
+    background:linear-gradient(transparent 65%, var(--sun-glow) 65%);
+    padding:0 .15em;
+  }
+  .hero p{
+    color:var(--ink-soft);
+    font-size:.92rem;
+    max-width:560px;
+    margin:0 auto;
+  }
+
+  /* === Main layout === */
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:1.5rem 5vw 4rem;
+  }
+
+  .sim-grid{
+    display:grid;
+    gap:1.2rem;
+    grid-template-columns:1fr;
+  }
+  @media(min-width:980px){
+    .sim-grid{grid-template-columns:minmax(340px, 400px) 1fr;align-items:start}
+  }
+
+  /* === Panel === */
+  .panel{
+    background:#fff;
+    border-radius:24px;
+    padding:1.6rem 1.4rem;
+    box-shadow:var(--shadow-soft);
+    border:1px solid rgba(122,109,86,.08);
+  }
+  @media(min-width:980px){
+    .panel.form-panel{position:sticky;top:90px}
+  }
+
+  .panel-title{
+    display:flex;
+    align-items:center;
+    gap:.6rem;
+    margin-bottom:1.3rem;
+    padding-bottom:.9rem;
+    border-bottom:2px dashed rgba(122,109,86,.2);
+  }
+  .panel-title .icon{
+    width:34px;height:34px;
+    border-radius:50%;
+    background:linear-gradient(135deg, var(--sun) 0%, var(--sun-deep) 100%);
+    display:grid;place-items:center;
+    color:#fff;
+    font-size:1rem;
+  }
+  .panel-title h2{font-size:1.05rem;font-weight:700}
+  .panel-title small{font-size:.7rem;color:var(--ink-soft);font-weight:500;letter-spacing:.05em}
+
+  /* === Form fields === */
+  .field{margin-bottom:1.3rem}
+  .field-label{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:.5rem;
+  }
+  .field-label .label{font-size:.85rem;font-weight:700}
+  .field-label .label small{display:block;font-size:.7rem;color:var(--ink-soft);font-weight:500;margin-top:.1rem}
+  .field-label .value{
+    font-family:'Kaisei Decol',serif;
+    font-weight:700;
+    font-size:1.15rem;
+    color:var(--sun-deep);
+    background:#fff8e3;
+    padding:.15rem .7rem;
+    border-radius:999px;
+    line-height:1.3;
+  }
+  .field-label .value small{font-size:.7rem;color:var(--ink-soft);font-weight:500}
+
+  /* Range slider */
+  input[type="range"]{
+    width:100%;
+    -webkit-appearance:none;
+    appearance:none;
+    height:8px;
+    background:linear-gradient(90deg,
+      var(--sun) 0%, var(--sun) var(--prog,50%),
+      #eadcc6 var(--prog,50%), #eadcc6 100%);
+    border-radius:999px;
+    outline:none;
+    cursor:pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    appearance:none;
+    width:24px;height:24px;
+    border-radius:50%;
+    background:#fff;
+    border:3px solid var(--sun-deep);
+    box-shadow:0 3px 8px -2px rgba(255,139,61,.5);
+    cursor:grab;
+    transition:transform .1s;
+  }
+  input[type="range"]::-webkit-slider-thumb:active{transform:scale(1.15);cursor:grabbing}
+  input[type="range"]::-moz-range-thumb{
+    width:24px;height:24px;
+    border-radius:50%;
+    background:#fff;
+    border:3px solid var(--sun-deep);
+    box-shadow:0 3px 8px -2px rgba(255,139,61,.5);
+    cursor:grab;
+  }
+
+  /* Select / segmented */
+  .segmented{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem;
+  }
+  .segmented input{display:none}
+  .segmented label{
+    flex:1;
+    min-width:0;
+    text-align:center;
+    padding:.55rem .3rem;
+    font-size:.78rem;
+    font-weight:700;
+    background:#f5ede0;
+    color:var(--ink-soft);
+    border-radius:10px;
+    cursor:pointer;
+    transition:all .15s;
+    border:2px solid transparent;
+    line-height:1.3;
+  }
+  .segmented label small{display:block;font-size:.65rem;font-weight:500;margin-top:.15rem;opacity:.85}
+  .segmented input:checked + label{
+    background:linear-gradient(135deg, var(--sun) 0%, var(--sun-deep) 100%);
+    color:#fff;
+    box-shadow:0 4px 10px -3px rgba(255,139,61,.4);
+  }
+
+  /* Number input */
+  .number-row{
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+  .number-row input{
+    flex:1;
+    padding:.6rem .8rem;
+    border:2px solid #eadcc6;
+    border-radius:10px;
+    font-size:1rem;
+    font-weight:700;
+    background:#fff;
+    transition:border-color .15s;
+  }
+  .number-row input:focus{outline:none;border-color:var(--sun)}
+  .number-row .unit{font-size:.85rem;color:var(--ink-soft);font-weight:500}
+
+  .field-hint{
+    font-size:.72rem;
+    color:var(--ink-soft);
+    margin-top:.4rem;
+    line-height:1.5;
+  }
+  .field-hint.optional{
+    background:var(--sky-soft);
+    color:var(--ink);
+    padding:.5rem .7rem;
+    border-radius:8px;
+    border-left:3px solid var(--sky-deep);
+    margin-top:.6rem;
+  }
+
+  /* === Result panel === */
+  .result-hero{
+    background:
+      radial-gradient(ellipse at 80% 0%, var(--sun-glow) 0%, transparent 50%),
+      radial-gradient(ellipse at 20% 100%, var(--sky-soft) 0%, transparent 50%),
+      linear-gradient(180deg, #fff8e3 0%, #fff 100%);
+    border-radius:24px;
+    padding:1.8rem 1.5rem;
+    text-align:center;
+    margin-bottom:1.2rem;
+    border:2px solid var(--sun);
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  .result-hero::before{
+    content:"";
+    position:absolute;
+    top:-30px;right:-30px;
+    width:120px;height:120px;
+    border-radius:50%;
+    background:radial-gradient(circle, var(--sun-glow), var(--sun) 70%);
+    opacity:.6;
+    z-index:0;
+  }
+  .result-hero > *{position:relative;z-index:1}
+  .result-hero .label{
+    font-size:.85rem;
+    color:var(--ink-soft);
+    font-weight:700;
+    margin-bottom:.4rem;
+  }
+  .result-hero .label::before{content:"☀ ";color:var(--sun-deep)}
+  .result-hero .big-num{
+    font-family:'Kaisei Decol',serif;
+    font-weight:700;
+    font-size:clamp(2.2rem, 7vw, 3.4rem);
+    color:var(--sun-deep);
+    line-height:1.1;
+    letter-spacing:-.02em;
+  }
+  .result-hero .big-num small{font-size:.5em;color:var(--ink-soft);font-weight:500;margin-left:.2em}
+  .result-hero .sub{
+    font-size:.85rem;
+    color:var(--ink-soft);
+    margin-top:.5rem;
+  }
+  .result-hero .sub b{color:var(--sun-deep)}
+  .result-hero .stamp{
+    display:inline-block;
+    margin-top:.8rem;
+    padding:.3rem 1rem;
+    background:#fff;
+    border:2px solid var(--sun-deep);
+    color:var(--sun-deep);
+    border-radius:999px;
+    font-size:.78rem;
+    font-weight:700;
+    transform:rotate(-3deg);
+  }
+
+  /* === Chart === */
+  .chart-wrap{
+    background:#fff;
+    border-radius:20px;
+    padding:1.5rem 1.3rem;
+    margin-bottom:1.2rem;
+    box-shadow:var(--shadow-soft);
+  }
+  .chart-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:1rem;
+    flex-wrap:wrap;
+    gap:.5rem;
+  }
+  .chart-title h3{
+    font-size:1rem;
+    font-weight:700;
+  }
+  .chart-title h3 small{
+    display:block;
+    font-size:.7rem;
+    color:var(--ink-soft);
+    font-weight:500;
+    margin-top:.1rem;
+  }
+  .chart-legend{
+    display:flex;
+    gap:.8rem;
+    flex-wrap:wrap;
+    font-size:.72rem;
+  }
+  .chart-legend span{
+    display:inline-flex;
+    align-items:center;
+    gap:.3rem;
+    color:var(--ink-soft);
+  }
+  .chart-legend span::before{
+    content:"";
+    width:12px;height:12px;
+    border-radius:3px;
+    background:var(--c);
+  }
+
+  .bars{
+    display:grid;
+    gap:.85rem;
+    margin-bottom:1.2rem;
+  }
+  .bar-row{
+    display:grid;
+    grid-template-columns:80px 1fr;
+    gap:.7rem;
+    align-items:center;
+  }
+  .bar-label{
+    font-size:.78rem;
+    font-weight:700;
+    line-height:1.3;
+  }
+  .bar-label small{display:block;font-size:.65rem;color:var(--ink-soft);font-weight:500;margin-top:.1rem}
+  .bar-track{
+    background:#f5ede0;
+    border-radius:8px;
+    height:38px;
+    position:relative;
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    padding-right:.7rem;
+    color:#fff;
+    font-weight:700;
+    font-size:.85rem;
+    transition:width .6s cubic-bezier(.4,1.4,.5,1);
+    min-width:60px;
+  }
+  .bar-fill.now{background:linear-gradient(90deg, #888 0%, #6a6a6a 100%)}
+  .bar-fill.night{background:linear-gradient(90deg, var(--night) 0%, var(--night-deep) 100%)}
+  .bar-fill.sun{background:linear-gradient(90deg, var(--sun) 0%, var(--sun-deep) 100%)}
+
+  .compare-summary{
+    display:grid;
+    gap:.7rem;
+    grid-template-columns:1fr;
+    padding-top:1.2rem;
+    border-top:1px dashed rgba(122,109,86,.2);
+  }
+  @media(min-width:560px){.compare-summary{grid-template-columns:repeat(2,1fr)}}
+  .summary-card{
+    padding:.9rem 1rem;
+    border-radius:14px;
+    background:var(--cream);
+  }
+  .summary-card.win{
+    background:linear-gradient(135deg, #fff8e3 0%, #ffeec2 100%);
+    border:2px solid var(--sun);
+  }
+  .summary-card .h{font-size:.75rem;color:var(--ink-soft);font-weight:700;margin-bottom:.2rem}
+  .summary-card .v{
+    font-family:'Kaisei Decol',serif;
+    font-weight:700;
+    font-size:1.3rem;
+  }
+  .summary-card.win .v{color:var(--sun-deep)}
+
+  /* === Breakdown === */
+  .breakdown{
+    background:#fff;
+    border-radius:20px;
+    padding:1.5rem 1.3rem;
+    margin-bottom:1.2rem;
+    box-shadow:var(--shadow-soft);
+  }
+  .breakdown-title{
+    font-size:1rem;
+    font-weight:700;
+    margin-bottom:1rem;
+  }
+  .breakdown-title small{display:block;font-size:.7rem;color:var(--ink-soft);font-weight:500;margin-top:.1rem}
+
+  .step-list{
+    display:grid;
+    gap:.5rem;
+  }
+  .step-item{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:.7rem;
+    align-items:center;
+    padding:.7rem .9rem;
+    background:var(--cream);
+    border-radius:10px;
+    font-size:.85rem;
+  }
+  .step-item .num{
+    width:26px;height:26px;
+    border-radius:50%;
+    background:var(--sun);
+    color:#fff;
+    display:grid;place-items:center;
+    font-family:'Kaisei Decol',serif;
+    font-weight:700;
+    font-size:.75rem;
+    flex-shrink:0;
+  }
+  .step-item .desc{color:var(--ink);line-height:1.4}
+  .step-item .desc small{display:block;font-size:.7rem;color:var(--ink-soft);margin-top:.1rem}
+  .step-item .num-val{
+    font-family:'Kaisei Decol',serif;
+    font-weight:700;
+    color:var(--sun-deep);
+    font-size:1rem;
+    text-align:right;
+    white-space:nowrap;
+  }
+  .step-item .num-val small{font-size:.7rem;color:var(--ink-soft);font-weight:500}
+
+  /* === Notice === */
+  .notice-box{
+    padding:.9rem 1rem;
+    border-radius:12px;
+    font-size:.82rem;
+    margin-bottom:.8rem;
+    display:flex;
+    gap:.7rem;
+    line-height:1.6;
+  }
+  .notice-box .ico{
+    flex-shrink:0;
+    width:26px;height:26px;
+    border-radius:50%;
+    display:grid;place-items:center;
+    color:#fff;
+    font-weight:700;
+    font-size:.85rem;
+  }
+  .notice-box.info{background:var(--sky-soft);border-left:3px solid var(--sky-deep)}
+  .notice-box.info .ico{background:var(--sky-deep)}
+  .notice-box.info .ico::after{content:"i"}
+  .notice-box.warn{background:#fff3d6;border-left:3px solid var(--warn)}
+  .notice-box.warn .ico{background:var(--warn)}
+  .notice-box.warn .ico::after{content:"!"}
+  .notice-box b{color:var(--ink)}
+
+  /* === Final CTA === */
+  .final-cta-block{
+    background:
+      radial-gradient(circle at 80% 20%, var(--sun-glow) 0%, transparent 45%),
+      radial-gradient(circle at 20% 80%, var(--sky-soft) 0%, transparent 50%),
+      var(--cream);
+    border-radius:24px;
+    padding:2rem 1.5rem;
+    text-align:center;
+    box-shadow:var(--shadow-soft);
+  }
+  .final-cta-block h3{
+    font-size:1.2rem;
+    margin-bottom:.6rem;
+    line-height:1.5;
+  }
+  .final-cta-block h3 .marker{background:linear-gradient(transparent 65%, var(--sun-glow) 65%);padding:0 .15em}
+  .final-cta-block p{
+    font-size:.85rem;
+    color:var(--ink-soft);
+    margin-bottom:1.3rem;
+  }
+
+  .cta-line{
+    display:inline-flex;
+    align-items:center;
+    gap:.6rem;
+    background:var(--line-green);
+    color:#fff;
+    padding:1rem 1.8rem;
+    border-radius:999px;
+    font-weight:900;
+    font-size:1rem;
+    text-decoration:none;
+    box-shadow:0 8px 0 -2px var(--line-green-deep), var(--shadow);
+    transition:transform .15s, box-shadow .15s;
+    border:none;
+  }
+  .cta-line:hover{transform:translateY(2px);box-shadow:0 6px 0 -2px var(--line-green-deep), var(--shadow)}
+  .cta-line .line-icon{
+    width:28px;height:28px;background:#fff;color:var(--line-green);
+    border-radius:7px;display:grid;place-items:center;font-weight:900;font-size:.85rem;
+  }
+
+  .cta-tags{
+    display:flex;
+    justify-content:center;
+    gap:.4rem;
+    flex-wrap:wrap;
+    margin-top:1rem;
+    font-size:.72rem;
+    color:var(--ink-soft);
+  }
+  .cta-tags span{
+    background:rgba(255,255,255,.7);
+    padding:.25rem .8rem;
+    border-radius:999px;
+  }
+
+  /* === Disclaimer === */
+  .disclaimer{
+    margin-top:2rem;
+    padding:1.3rem 1.4rem;
+    background:#f5ede0;
+    border-radius:14px;
+    font-size:.75rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+  }
+  .disclaimer h4{
+    font-size:.85rem;
+    color:var(--ink);
+    margin-bottom:.5rem;
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-weight:700;
+  }
+  .disclaimer ul{list-style:none;padding:0}
+  .disclaimer li{padding:.15rem 0;padding-left:1rem;position:relative}
+  .disclaimer li::before{content:"※";position:absolute;left:0;color:var(--sun-deep)}
+
+  /* === Footer === */
+  footer{
+    background:var(--ink);
+    color:rgba(255,250,240,.7);
+    padding:2.5rem 5vw 1.5rem;
+    text-align:center;
+    font-size:.8rem;
+  }
+  footer .logo{justify-content:center;color:var(--cream);margin-bottom:1rem}
+  footer .logo small{color:rgba(255,250,240,.6)}
+  footer a{color:var(--sun-glow);text-decoration:none;margin:0 .5rem}
+  .copy{margin-top:1.2rem;font-size:.7rem;opacity:.6}
+
+  /* float CTA mobile */
+  .float-cta{
+    position:fixed;
+    bottom:1rem;left:50%;
+    transform:translateX(-50%);
+    z-index:100;
+    width:calc(100% - 2rem);
+    max-width:340px;
+    text-align:center;
+  }
+  .float-cta .cta-line{
+    width:100%;
+    justify-content:center;
+    font-size:.92rem;
+    padding:.85rem 1rem;
+    box-shadow:0 5px 0 -2px var(--line-green-deep), 0 12px 28px -10px rgba(0,0,0,.4);
+  }
+  @media(min-width:720px){.float-cta{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark"><span>まち</span><span>電</span></div>
+    <div>
+      おひさまエコキュート シミュレーター
+      <small>by まちの電気屋さん／シスコムネットダイレクト</small>
+    </div>
+  </div>
+  <a href="https://page.line.me/809xyxye" class="header-cta" target="_blank" rel="noopener">
+    <span style="background:#fff;color:var(--line-green);width:20px;height:20px;border-radius:5px;display:grid;place-items:center;font-weight:900;font-size:.7rem;">L</span>
+    LINEで相談
+  </a>
+</header>
+
+<section class="hero">
+  <div class="hero-sun"></div>
+  <div class="hero-inner">
+    <span class="eyebrow">所要時間 約30秒</span>
+    <h1>
+      深夜電力 vs <span class="marker">おひさま</span>。<br>
+      ご家庭の年間電気代、シミュレーション。
+    </h1>
+    <p>家族構成・太陽光・電気代を入力するだけ。<br>
+    深夜電力エコキュートとおひさまエコキュート、どちらがどれだけおトクか、すぐに分かります。</p>
+  </div>
+</section>
+
+<main>
+  <div class="sim-grid">
+    <!-- ===== FORM ===== -->
+    <div class="panel form-panel">
+      <div class="panel-title">
+        <div class="icon">📝</div>
+        <div>
+          <h2>ご家庭の状況を入力</h2>
+          <small>動かすたびに右の結果がリアルタイム更新</small>
+        </div>
+      </div>
+
+      <!-- Family -->
+      <div class="field">
+        <div class="field-label">
+          <div class="label">ご家族の人数<small>給湯需要に直結します</small></div>
+          <div class="value" id="v-family">4<small>人</small></div>
+        </div>
+        <input type="range" id="family" min="1" max="6" step="1" value="4">
+      </div>
+
+      <!-- Solar kW -->
+      <div class="field">
+        <div class="field-label">
+          <div class="label">太陽光パネルの容量<small>4kW以上が目安</small></div>
+          <div class="value" id="v-solar">5.0<small>kW</small></div>
+        </div>
+        <input type="range" id="solar" min="2" max="10" step="0.5" value="5">
+      </div>
+
+      <!-- Monthly bill -->
+      <div class="field">
+        <div class="field-label">
+          <div class="label">月々の電気代<small>季節平均で結構です</small></div>
+          <div class="value" id="v-bill">15,000<small>円</small></div>
+        </div>
+        <input type="range" id="bill" min="5000" max="40000" step="500" value="15000">
+      </div>
+
+      <!-- FIT price -->
+      <div class="field">
+        <div class="field-label">
+          <div class="label">現在の売電単価<small>卒FIT後は8円が目安</small></div>
+          <div class="value" id="v-fit">8<small>円/kWh</small></div>
+        </div>
+        <input type="range" id="fit" min="7" max="48" step="1" value="8">
+      </div>
+
+      <!-- Age -->
+      <div class="field">
+        <div class="field-label">
+          <div class="label">現在の給湯器の使用年数<small>経年劣化を反映</small></div>
+        </div>
+        <div class="segmented">
+          <input type="radio" name="age" id="age1" value="3" checked>
+          <label for="age1">〜5年<small>標準</small></label>
+          <input type="radio" name="age" id="age2" value="8">
+          <label for="age2">6〜10年<small>×1.2</small></label>
+          <input type="radio" name="age" id="age3" value="13">
+          <label for="age3">11〜15年<small>×1.45</small></label>
+          <input type="radio" name="age" id="age4" value="17">
+          <label for="age4">16年〜<small>×1.65</small></label>
+        </div>
+      </div>
+
+      <!-- Optional kWh -->
+      <div class="field">
+        <div class="field-label">
+          <div class="label">[任意] 年間平均日量kWh<small>HEMSや電力アプリで分かる方</small></div>
+        </div>
+        <div class="number-row">
+          <input type="number" id="dailyKwh" placeholder="未入力でOK" min="0" max="80" step="0.5">
+          <span class="unit">kWh／日</span>
+        </div>
+        <div class="field-hint optional">
+          冬のピーク日ではなく、<b>年間を均した平均値</b>を入れてください。<br>
+          15kWh/日以上は重度劣化の目安です。
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RESULT ===== -->
+    <div class="result-panel">
+      <!-- Result hero -->
+      <div class="result-hero">
+        <div class="label">おひさまエコキュート切替で、年間削減可能額（概算）</div>
+        <div class="big-num" id="r-saving">¥─<small>／年</small></div>
+        <div class="sub">うち、給湯器の<b>経年劣化分</b>で <b id="r-aging-effect">─</b>／年</div>
+        <div class="stamp" id="r-stamp">10年で <span id="r-10y">─</span> の家計効果</div>
+      </div>
+
+      <!-- Notices -->
+      <div id="notices"></div>
+
+      <!-- Bar chart -->
+      <div class="chart-wrap">
+        <div class="chart-title">
+          <h3>
+            年間電気代・3パターン比較
+            <small>給湯にかかる電気代の違い</small>
+          </h3>
+          <div class="chart-legend">
+            <span style="--c:#888">現状</span>
+            <span style="--c:var(--night)">深夜エコ</span>
+            <span style="--c:var(--sun-deep)">おひさま</span>
+          </div>
+        </div>
+
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-label">現状<small>劣化込み</small></div>
+            <div class="bar-track">
+              <div class="bar-fill now" id="bar-now" style="width:60%">¥─</div>
+            </div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">深夜エコ<small>標準型</small></div>
+            <div class="bar-track">
+              <div class="bar-fill night" id="bar-night" style="width:50%">¥─</div>
+            </div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">おひさま<small>太陽光連携</small></div>
+            <div class="bar-track">
+              <div class="bar-fill sun" id="bar-sun" style="width:30%">¥─</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="compare-summary">
+          <div class="summary-card">
+            <div class="h">深夜電力エコキュートとの差</div>
+            <div class="v" id="r-vs-night">¥─</div>
+          </div>
+          <div class="summary-card win">
+            <div class="h">☀ おひさま選択でさらに</div>
+            <div class="v" id="r-vs-now">¥─</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="breakdown">
+        <div class="breakdown-title">
+          計算の内訳
+          <small>① 給湯量 → ⑧ 補正 まで</small>
+        </div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="num">1</div>
+            <div class="desc">家族<span id="b1-family">4</span>人・標準給湯電力量<small>新品想定の年間kWh</small></div>
+            <div class="num-val"><span id="b1-val">─</span><small> kWh/年</small></div>
+          </div>
+          <div class="step-item">
+            <div class="num">2</div>
+            <div class="desc">経年劣化係数<small>使用年数で自動補正</small></div>
+            <div class="num-val">×<span id="b2-val">─</span></div>
+          </div>
+          <div class="step-item">
+            <div class="num">3</div>
+            <div class="desc">現在の実消費量<small>夜間運転ベース</small></div>
+            <div class="num-val"><span id="b3-val">─</span><small> kWh/年</small></div>
+          </div>
+          <div class="step-item">
+            <div class="num">4</div>
+            <div class="desc">太陽光の年間発電量<small>1kW=1,100kWh想定</small></div>
+            <div class="num-val"><span id="b4-val">─</span><small> kWh</small></div>
+          </div>
+          <div class="step-item">
+            <div class="num">5</div>
+            <div class="desc">自家消費シフト率<small>容量で自動判定</small></div>
+            <div class="num-val"><span id="b5-val">─</span><small> %</small></div>
+          </div>
+          <div class="step-item">
+            <div class="num">6</div>
+            <div class="desc">昼沸き上げで自家消費できる量<small>太陽光から給湯へ</small></div>
+            <div class="num-val"><span id="b6-val">─</span><small> kWh</small></div>
+          </div>
+          <div class="step-item">
+            <div class="num">7</div>
+            <div class="desc">月電気代×30%<small>給湯費の家計目安</small></div>
+            <div class="num-val">¥<span id="b7-val">─</span></div>
+          </div>
+          <div class="step-item">
+            <div class="num">8</div>
+            <div class="desc">小容量補正<small>4kW未満は控えめ計算</small></div>
+            <div class="num-val">−¥<span id="b8-val">─</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final CTA -->
+      <div class="final-cta-block">
+        <h3>正確な診断は、<span class="marker">LINEで個別に</span>。</h3>
+        <p>機種選び・補助金・電力契約の見直しまで、まちの電気屋さんが中立目線でご相談に乗ります。</p>
+        <a href="https://page.line.me/809xyxye" class="cta-line" target="_blank" rel="noopener">
+          <span class="line-icon">L</span>
+          LINEで無料相談する
+        </a>
+        <div class="cta-tags">
+          <span>✓ 登録30秒</span>
+          <span>✓ 無料相談</span>
+          <span>✓ 営業電話なし</span>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <h4>計算の前提について</h4>
+        <ul>
+          <li>本試算は「370L通常タイプ」のエコキュートを想定した概算です</li>
+          <li>年間給湯kWh（新品想定）：1人900／2人1,300／3人1,700／4人2,100／5人2,500／6人2,900 kWh</li>
+          <li>経年劣化：年約3%で消費電力が増加（7年で約1.2倍／13年で約1.45倍／17年で約1.65倍）</li>
+          <li>太陽光は1kWあたり年間1,100kWh発電として計算</li>
+          <li>昼稼働はヒートポンプのCOPが向上し、消費電力は夜間比で約60%（3/5）に低下</li>
+          <li>自家消費シフト率：6kW以上=80%／5kW=75%／4kW=70%／3kW=55%／2kW=40%／1kW=20%</li>
+          <li>4kW未満は冬場に買電が増えるものの、日中沸き上げのCOP60%効果で「損はしない」設計（容量1kW増加ごとに約2万円の効果増を補正）</li>
+          <li>買電単価は35円/kWh、深夜電力単価は25円/kWhを想定</li>
+          <li>正確な金額は、機種・電力契約・お住まいの環境で変動します</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="logo">
+    <div class="logo-mark"><span>まち</span><span>電</span></div>
+    <div>
+      電材コンビニ／まちの電気屋さん
+      <small>株式会社シスコムネットダイレクト</small>
+    </div>
+  </div>
+  <p>太陽光・蓄電池・エコキュート・オール電化／千葉</p>
+  <p style="margin-top:.6rem">
+    <a href="https://syscomnet.co.jp/" target="_blank" rel="noopener">本社サイト</a>
+    ／
+    <a href="#">特商法表記</a>
+    ／
+    <a href="#">プライバシーポリシー</a>
+  </p>
+  <p class="copy">© 2026 SYSCOMNET DIRECT. All rights reserved.</p>
+</footer>
+
+<div class="float-cta">
+  <a href="https://page.line.me/809xyxye" class="cta-line" target="_blank" rel="noopener">
+    <span class="line-icon">L</span>
+    LINEで無料相談
+  </a>
+</div>
+
+<script>
+// ============================
+// おひさまエコキュート シミュレーター
+// シスコムサステナシールド版の計算ロジックを踏襲
+// ============================
+
+const FAMILY_KWH = {1:900, 2:1300, 3:1700, 4:2100, 5:2500, 6:2900};
+const SOLAR_SHIFT_RATES = [
+  {kw:1, rate:.20},
+  {kw:2, rate:.40},
+  {kw:3, rate:.55},
+  {kw:4, rate:.70},
+  {kw:5, rate:.75},
+  {kw:6, rate:.80}
+];
+const BUY_PRICE = 35;       // 買電単価 円/kWh
+const NIGHT_PRICE = 25;     // 深夜電力単価 円/kWh
+const SOLAR_YIELD = 1100;   // 1kWあたり年間発電量
+const COP_DAY_RATIO = 0.60; // 昼稼働時のCOP補正(夜間比)
+
+// 経年劣化係数(年約3%増)
+function getAgingFactor(years){
+  return Math.pow(1.03, years);
+}
+
+// 自家消費シフト率
+function getShiftRate(kw){
+  let rate = .20;
+  for(const t of SOLAR_SHIFT_RATES){
+    if(kw >= t.kw) rate = t.rate;
+  }
+  // 6kW以上は80%固定
+  if(kw >= 6) rate = .80;
+  return rate;
+}
+
+const yen = n => '¥' + Math.round(n).toLocaleString();
+const yenUnit = n => Math.round(n).toLocaleString();
+
+function calc(){
+  const family = +document.getElementById('family').value;
+  const solar = +document.getElementById('solar').value;
+  const bill = +document.getElementById('bill').value;
+  const fit = +document.getElementById('fit').value;
+  const age = +document.querySelector('input[name="age"]:checked').value;
+  const dailyKwhInput = parseFloat(document.getElementById('dailyKwh').value) || 0;
+
+  // ① 家族別 年間給湯kWh(新品想定)
+  const baseKwh = FAMILY_KWH[family] || 2100;
+
+  // ② 経年劣化係数
+  const aging = getAgingFactor(age);
+
+  // ③ 現在の実消費量(夜運転ベース)
+  let actualKwh = baseKwh * aging;
+  if(dailyKwhInput > 0){
+    actualKwh = dailyKwhInput * 365;
+  }
+  const actualDaily = actualKwh / 365;
+
+  // ④ 太陽光の年間発電量
+  const solarYield = solar * SOLAR_YIELD;
+
+  // ⑤ 自家消費シフト率
+  const shiftRate = getShiftRate(solar);
+
+  // ⑥ 昼沸き上げで自家消費できる量
+  // (給湯需要×COP_DAY_RATIO ≒ 昼稼働時の必要電力量)
+  const dayLoad = actualKwh * COP_DAY_RATIO;
+  const shiftKwh = Math.min(dayLoad, solarYield * shiftRate);
+
+  // ⑦ 月電気代×30% → 年間給湯費の目安
+  const billBased = bill * 12 * 0.30;
+
+  // 各シナリオの年間給湯電気代
+  // 現状: 古い機器 × 夜運転 × 深夜電力(劣化込み)
+  const costNow = actualKwh * NIGHT_PRICE;
+
+  // 深夜エコキュート(新品標準): 新品標準kWh × 深夜電力
+  // 現状と同じ夜運転だが新品交換で経年劣化分はリセット
+  const costNight = baseKwh * NIGHT_PRICE;
+
+  // おひさまエコキュート:
+  // 機器は新品交換するが、給湯需要そのものは家族人数依存(actualKwhと同じ前提)
+  // 新品交換で経年劣化分はリセット、ただしおひさま運転は昼COP補正(0.6倍)で消費が減る
+  // 比較のフェアネスのため、現状=actualKwh(古い機器の実態)、新品交換=baseKwh(劣化なし)とする
+  const dayLoadTotal = baseKwh * COP_DAY_RATIO; // 新品想定の昼稼働需要
+  const shiftKwhEffective = Math.min(dayLoadTotal, solarYield * shiftRate);
+  const remainingDayLoad = Math.max(0, dayLoadTotal - shiftKwhEffective);
+  // 自家消費機会損失 = shiftKwhEffective × FIT(売電諦め分)
+  const sunSelfCost = shiftKwhEffective * fit;
+  const sunBuyCost = remainingDayLoad * BUY_PRICE;
+  const costSun = sunSelfCost + sunBuyCost;
+
+  // 削減額
+  const savingVsNow = costNow - costSun;
+  const savingVsNight = costNight - costSun;
+
+  // ⑧ 小容量補正(4kW未満は削減効果を割り引く)
+  let correction = 0;
+  if(solar < 4){
+    correction = (4 - solar) * 20000;
+  }
+  const finalSaving = Math.max(0, savingVsNow - correction);
+  const finalSavingVsNight = Math.max(0, savingVsNight - correction*0.5);
+
+  // === Update DOM ===
+  document.getElementById('v-family').innerHTML = family + '<small>人</small>';
+  document.getElementById('v-solar').innerHTML = solar.toFixed(1) + '<small>kW</small>';
+  document.getElementById('v-bill').innerHTML = bill.toLocaleString() + '<small>円</small>';
+  document.getElementById('v-fit').innerHTML = fit + '<small>円/kWh</small>';
+
+  // Slider progress
+  document.querySelectorAll('input[type="range"]').forEach(r=>{
+    const min=+r.min, max=+r.max, val=+r.value;
+    const pct = ((val-min)/(max-min))*100;
+    r.style.setProperty('--prog', pct+'%');
+  });
+
+  // Result hero
+  document.getElementById('r-saving').innerHTML = yen(finalSaving) + '<small>／年</small>';
+  // 経年劣化分の効果 = (actualKwh - baseKwh) * NIGHT_PRICE
+  const agingEffect = (actualKwh - baseKwh) * NIGHT_PRICE;
+  document.getElementById('r-aging-effect').textContent = yen(agingEffect);
+  document.getElementById('r-10y').textContent = yen(finalSaving * 10);
+
+  // Bars
+  const maxCost = Math.max(costNow, costNight, costSun, 1);
+  const w = c => Math.max(15, (c/maxCost)*100);
+  const barNow = document.getElementById('bar-now');
+  const barNight = document.getElementById('bar-night');
+  const barSun = document.getElementById('bar-sun');
+  barNow.style.width = w(costNow)+'%';
+  barNow.textContent = yen(costNow);
+  barNight.style.width = w(costNight)+'%';
+  barNight.textContent = yen(costNight);
+  barSun.style.width = w(costSun)+'%';
+  barSun.textContent = yen(costSun);
+
+  document.getElementById('r-vs-night').textContent = yen(finalSavingVsNight);
+  document.getElementById('r-vs-now').textContent = yen(finalSaving);
+
+  // Breakdown
+  document.getElementById('b1-family').textContent = family;
+  document.getElementById('b1-val').textContent = yenUnit(baseKwh);
+  document.getElementById('b2-val').textContent = aging.toFixed(2);
+  document.getElementById('b3-val').textContent = yenUnit(actualKwh) + '（約' + actualDaily.toFixed(1) + 'kWh/日）';
+  document.getElementById('b4-val').textContent = yenUnit(solarYield);
+  document.getElementById('b5-val').textContent = Math.round(shiftRate*100);
+  document.getElementById('b6-val').textContent = yenUnit(shiftKwhEffective);
+  document.getElementById('b7-val').textContent = yenUnit(billBased);
+  document.getElementById('b8-val').textContent = yenUnit(correction);
+
+  // Notices
+  const notices = [];
+  if(solar < 4){
+    notices.push({type:'info', html:`
+      <b>太陽光容量が4kW未満です。</b>
+      冬場はとくに発電量が給湯需要に届かず、日中に電力会社から買電することがあります。
+      ただし、卒FIT余剰を使い切るという意味では問題ありません。
+      日中沸き上げにすればヒートポンプの消費電力は約60%（3/5）まで下がるため、<b>夜間に深夜電力で沸かすより損することはありません</b>。
+      4kW以上の家庭と比べると年間削減額は控えめになります。
+    `});
+  }
+  // 家計ベース vs 家族人数ベース乖離チェック
+  const familyBased = actualKwh * NIGHT_PRICE;
+  if(Math.abs(billBased - familyBased) / Math.max(billBased, familyBased) > 0.4){
+    notices.push({type:'info', html:`
+      家計ベース（電気代の約3割）と家族人数ベースの給湯量に差があります。
+      実際の給湯設定・家族の生活時間帯を個別診断で確認しましょう。
+    `});
+  }
+  if(dailyKwhInput >= 15){
+    notices.push({type:'warn', html:`
+      入力された年間平均日量が<b>15kWh/日を超えています</b>（重度劣化の可能性大）。
+      もしこれが冬のピーク日の値であれば、年間平均はもう少し低くなります。
+      長く使った給湯器ほど切替効果が大きく出ます。LINEで個別診断をおすすめします。
+    `});
+  }
+  if(age >= 13){
+    notices.push({type:'warn', html:`
+      使用年数が<b>11年以上</b>です。エコキュートは年約3%のペースで消費電力が増えていきます。
+      切替効果が最も大きく出やすい時期です。
+    `});
+  }
+  if(fit >= 30){
+    notices.push({type:'info', html:`
+      売電単価が高めです。<b>FIT期間中</b>の方は急いで切り替える必要はありません。
+      ただし、卒FITが近づいてきたら「売る」より「使う」が断然おトクになります。
+    `});
+  }
+
+  const noticesEl = document.getElementById('notices');
+  noticesEl.innerHTML = notices.map(n=>`
+    <div class="notice-box ${n.type}"><div class="ico"></div><div>${n.html}</div></div>
+  `).join('');
+}
+
+// Bind events
+document.querySelectorAll('input').forEach(el=>{
+  el.addEventListener('input', calc);
+  el.addEventListener('change', calc);
+});
+
+// Initial calc
+calc();
+</script>
+
+</body>
+</html>
